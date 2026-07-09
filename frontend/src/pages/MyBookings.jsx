@@ -61,7 +61,7 @@ export default function MyBookings() {
                 <span>#{b.id}</span>
                 <span>{b.plate}</span>
                 <span>{b.start_date} &rarr; {b.end_date}</span>
-                <span>${b.total_price}</span>
+                <span>₹{Number(b.total_price).toLocaleString("en-IN")}</span>
               </div>
             </div>
             {b.status === "confirmed" && (

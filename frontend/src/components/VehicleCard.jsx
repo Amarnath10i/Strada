@@ -7,6 +7,8 @@ const STATUS_LABEL = {
   retired: "Retired",
 };
 
+const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+
 export default function VehicleCard({ vehicle }) {
   return (
     <Link to={`/vehicles/${vehicle.id}`} className="ticket">
@@ -31,8 +33,14 @@ export default function VehicleCard({ vehicle }) {
         <div className="ticket-stub-bottom">
           <span className="ticket-location">{vehicle.location}</span>
           <span className="ticket-price mono">
-            ${vehicle.price_per_day}<span className="ticket-price-unit">/day</span>
+            {inr(vehicle.price_per_day)}<span className="ticket-price-unit">/day</span>
           </span>
+        </div>
+
+        <div className="ticket-rates mono" aria-label="rate card">
+          <span>{inr(vehicle.price_per_hour)}<small>/hr</small></span>
+          <span>{inr(vehicle.price_per_day)}<small>/day</small></span>
+          <span>{inr(vehicle.price_per_km)}<small>/km</small></span>
         </div>
       </div>
     </Link>

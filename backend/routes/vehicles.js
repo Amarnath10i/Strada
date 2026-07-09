@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
     params.push(like, like, like);
   }
 
-  sql += " ORDER BY created_at DESC";
+  sql += " ORDER BY price_per_day ASC, created_at DESC";
   const vehicles = db.prepare(sql).all(...params);
   res.json({ vehicles });
 });
@@ -53,8 +53,9 @@ router.get("/:id", (req, res) => {
 router.post("/", requireAuth, requireAdmin, (req, res) => {
   const {
     type, brand, model, year, plate, category,
-    transmission, seats, price_per_day, location,
-    image_url, description, status
+    transmission, seats,
+    price_per_hour, price_per_day, price_per_km,
+    location, image_url, description, status
   } = req.body;
 
   if (!type || !brand || !model || !year || !plate || !category || !price_per_day || !location) {
@@ -63,12 +64,16 @@ router.post("/", requireAuth, requireAdmin, (req, res) => {
 
   try {
     const info = db.prepare(`
-      INSERT INTO vehicles (type, brand, model, year, plate, category, transmission, seats, price_per_day, location, image_url, description, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO vehicles
+        (type, brand, model, year, plate, category, transmission, seats,
+         price_per_hour, price_per_day, price_per_km,
+         location, image_url, description, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       type, brand, model, year, plate, category,
-      transmission || null, seats || null, price_per_day, location,
-      image_url || null, description || null, status || "available"
+      transmission || null, seats || null,
+      Number(price_per_hour) || 0, Number(price_per_day), Number(price_per_km) || 0,
+      location, image_url || null, description || null, status || "available"
     );
     const vehicle = db.prepare("SELECT * FROM vehicles WHERE id = ?").get(info.lastInsertRowid);
     res.status(201).json({ vehicle });
@@ -89,13 +94,15 @@ router.put("/:id", requireAuth, requireAdmin, (req, res) => {
   db.prepare(`
     UPDATE vehicles SET
       type = ?, brand = ?, model = ?, year = ?, plate = ?, category = ?,
-      transmission = ?, seats = ?, price_per_day = ?, location = ?,
-      image_url = ?, description = ?, status = ?
+      transmission = ?, seats = ?,
+      price_per_hour = ?, price_per_day = ?, price_per_km = ?,
+      location = ?, image_url = ?, description = ?, status = ?
     WHERE id = ?
   `).run(
     merged.type, merged.brand, merged.model, merged.year, merged.plate, merged.category,
-    merged.transmission, merged.seats, merged.price_per_day, merged.location,
-    merged.image_url, merged.description, merged.status,
+    merged.transmission, merged.seats,
+    Number(merged.price_per_hour) || 0, Number(merged.price_per_day), Number(merged.price_per_km) || 0,
+    merged.location, merged.image_url, merged.description, merged.status,
     req.params.id
   );
 

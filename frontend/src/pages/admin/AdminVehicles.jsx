@@ -4,7 +4,9 @@ import { useAuth } from "../../context/AuthContext";
 
 const BLANK = {
   type: "car", brand: "", model: "", year: new Date().getFullYear(), plate: "",
-  category: "", transmission: "automatic", seats: 5, price_per_day: "", location: "",
+  category: "", transmission: "automatic", seats: 5,
+  price_per_hour: "", price_per_day: "", price_per_km: "",
+  location: "",
   image_url: "", description: "", status: "available",
 };
 
@@ -59,7 +61,9 @@ export default function AdminVehicles() {
       ...form,
       year: Number(form.year),
       seats: form.seats ? Number(form.seats) : null,
+      price_per_hour: Number(form.price_per_hour) || 0,
       price_per_day: Number(form.price_per_day),
+      price_per_km: Number(form.price_per_km) || 0,
       transmission: form.type === "bike" ? null : form.transmission,
     };
     try {
@@ -153,8 +157,16 @@ export default function AdminVehicles() {
               <input type="number" value={form.seats || ""} onChange={(e) => updateField("seats", e.target.value)} />
             </div>
             <div className="field">
-              <label>Price / day ($)</label>
+              <label>Price / hour (₹)</label>
+              <input type="number" step="0.01" value={form.price_per_hour} onChange={(e) => updateField("price_per_hour", e.target.value)} />
+            </div>
+            <div className="field">
+              <label>Price / day (₹)</label>
               <input type="number" step="0.01" value={form.price_per_day} onChange={(e) => updateField("price_per_day", e.target.value)} required />
+            </div>
+            <div className="field">
+              <label>Price / km (₹)</label>
+              <input type="number" step="0.01" value={form.price_per_km} onChange={(e) => updateField("price_per_km", e.target.value)} />
             </div>
             <div className="field">
               <label>Yard / location</label>
@@ -200,7 +212,9 @@ export default function AdminVehicles() {
               <th>Vehicle</th>
               <th>Plate</th>
               <th>Class</th>
-              <th>Price/day</th>
+              <th>₹/hr</th>
+              <th>₹/day</th>
+              <th>₹/km</th>
               <th>Status</th>
               <th></th>
             </tr>
@@ -212,7 +226,9 @@ export default function AdminVehicles() {
                 <td>{v.brand} {v.model} <span className="mono" style={{ color: "var(--muted)" }}>'{String(v.year).slice(-2)}</span></td>
                 <td className="mono">{v.plate}</td>
                 <td>{v.category}</td>
-                <td className="mono">${v.price_per_day}</td>
+                <td className="mono">₹{Number(v.price_per_hour||0).toLocaleString("en-IN")}</td>
+                <td className="mono">₹{Number(v.price_per_day).toLocaleString("en-IN")}</td>
+                <td className="mono">₹{Number(v.price_per_km||0).toLocaleString("en-IN")}</td>
                 <td><span className={`stamp stamp-${v.status}`}>{v.status}</span></td>
                 <td className="actions">
                   <button className="btn btn-ghost btn-sm" onClick={() => openEdit(v)}>Edit</button>

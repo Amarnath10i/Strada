@@ -1,91 +1,74 @@
-# Strada
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
 
-A full-stack car & bike rental platform: browse a fleet, book by the day, manage your
-bookings, and (as an admin) manage the fleet and every reservation.
+.detail-media {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.detail-media img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
+.detail-stamp {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: rgba(255,254,251,0.92);
+}
 
-## Stack
+.detail-title { margin-bottom: 10px; }
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.detail-meta span {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 4px 8px;
+  text-transform: capitalize;
+}
+.detail-desc { color: var(--muted); max-width: 52ch; }
 
-- **Backend:** Node.js, Express, SQLite (via `better-sqlite3`), JWT auth, bcrypt
-- **Frontend:** React (Vite), React Router — plain CSS with a custom design system (no UI framework)
+.booking-panel { padding: 22px; margin-top: 24px; }
+.booking-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.booking-price .mono { font-size: 1.6rem; font-weight: 600; color: var(--accent); }
+.booking-price-unit { color: var(--muted); font-size: 0.85rem; }
+.booking-calc { margin: -4px 0 16px; }
+.booking-success strong {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.booking-success p { color: var(--muted); margin-bottom: 16px; }
 
-## Project structure
+@media (max-width: 860px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
 
-```
-rental-app/
-  backend/          Express API + SQLite database
-    db/             schema + seed script
-    routes/         auth, vehicles, bookings, admin
-    middleware/      JWT auth guard
-  frontend/         React app (Vite)
-    src/
-      pages/         Home, Browse, VehicleDetail, Login, Register, MyBookings, admin/*
-      components/    Navbar, Footer, VehicleCard, route guards
-      context/       AuthContext (JWT session)
-      api.js         fetch wrapper for the backend
-```
-
-## Running it locally
-
-You'll need Node.js 18+.
-
-### 1. Backend
-
-```bash
-cd backend
-npm install
-cp .env.example .env      # already done for you; edit JWT_SECRET for real use
-npm run seed               # creates rental.db with sample vehicles + users (safe to re-run)
-npm start                  # http://localhost:4000
-```
-
-### 2. Frontend
-
-In a second terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev                 # http://localhost:5173
-```
-
-The frontend reads the API URL from `frontend/.env` (`VITE_API_URL`, defaults to
-`http://localhost:4000/api`).
-
-## Demo accounts
-
-Seeded by `npm run seed`:
-
-| Role     | Email               | Password    |
-|----------|---------------------|-------------|
-| Admin    | admin@strada.com     | admin123    |
-| Customer | jamie@example.com   | customer123 |
-
-You can also register a new customer account from the app.
-
-## What's included
-
-**Customers can:**
-- Browse the fleet with filters (type, class, yard/location, search)
-- View a vehicle's detail page, pricing, and specs
-- Book a vehicle for a date range (server checks for overlapping bookings)
-- View and cancel their own bookings
-
-**Admins can:**
-- See a dashboard with fleet, booking, customer, and revenue stats
-- Add, edit, and delete vehicles (mark them available / in shop / retired)
-- View and cancel any booking
-
-## Notes on the data layer
-
-SQLite is used for simplicity — the whole database is a single file
-(`backend/rental.db`) with no external service to set up. The schema (`backend/db/index.js`)
-is plain SQL and easy to port to Postgres/MySQL later if you outgrow SQLite; the queries
-use `better-sqlite3`'s synchronous API, so swapping the driver is the main change needed.
-
-## Security notes for production use
-
-This is a learning/demo-grade build. Before deploying for real:
-- Set a strong, secret `JWT_SECRET` in `backend/.env`
-- Serve over HTTPS and set secure cookie/storage practices for the auth token
-- Add rate limiting and input validation hardening on the API
-- Move image uploads off hot-linked Unsplash URLs to real storage
+.rate-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f7f5ef;
+  border: 1px dashed rgba(0,0,0,0.15);
+  border-radius: 6px;
+}
+.rate-cell { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; }
+.rate-cell-primary { background: #111; color: #fff; border-radius: 4px; }
+.rate-cell-primary .rate-label { color: #ccc; }
+.rate-value { font-size: 1.05rem; font-weight: 700; }
+.rate-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #666; margin-top: 2px; }

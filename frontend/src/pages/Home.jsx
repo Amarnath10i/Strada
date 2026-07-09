@@ -97,7 +97,7 @@ export default function Home() {
                 <h2>Cars</h2>
                 <p>Economy hatchbacks up through supercars and a chauffeur-grade Rolls-Royce.</p>
                 <span className="category-card-cta">
-                  Browse cars{carsMin != null ? ` from $${carsMin}/day` : ""} &rarr;
+                  Browse cars{carsMin != null ? ` from ₹${Number(carsMin).toLocaleString("en-IN")}/day` : ""} &rarr;
                 </span>
               </div>
             </button>
@@ -109,7 +109,7 @@ export default function Home() {
                 <h2>Bikes</h2>
                 <p>Scooters and eBikes up through Ducati superbikes and CVO tourers.</p>
                 <span className="category-card-cta">
-                  Browse bikes{bikesMin != null ? ` from $${bikesMin}/day` : ""} &rarr;
+                  Browse bikes{bikesMin != null ? ` from ₹${Number(bikesMin).toLocaleString("en-IN")}/day` : ""} &rarr;
                 </span>
               </div>
             </button>
