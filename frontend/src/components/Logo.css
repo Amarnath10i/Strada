@@ -1,0 +1,16 @@
+.logo {
+  display: inline-block;
+  font-family: var(--font-script);
+  font-weight: 500;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--accent);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* for placement on dark surfaces (hero, dark footer, etc.) */
+.logo-invert { color: #FBF8F1; }
+
+.logo-lg { font-size: 4rem; }
+.logo-sm { font-size: 1.9rem; }

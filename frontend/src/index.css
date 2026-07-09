@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=WindSong:wght@400;500&display=swap');
+
+:root {
+  /* Color: rental-yard / claim-ticket palette */
+  --bg: #EAE5D8;
+  --bg-dark: #1D1B17;
+  --surface: #FFFEFB;
+  --surface-alt: #F3EEE1;
+  --ink: #211E19;
+  --muted: #746E60;
+  --line: #C9C0AB;
+  --accent: #D6480F;       /* safety-cone orange */
+  --accent-ink: #FFF6EF;
+  --pine: #1F5C4F;         /* deep plate green, secondary */
+  --pine-ink: #EAF3F0;
+  --danger: #B3261E;
+  --warn: #9A6A00;
+
+  --font-display: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-script: 'WindSong', cursive;
+
+  --radius: 3px;
+  --shadow-ticket: 0 1px 0 rgba(33,30,25,0.06), 0 8px 20px -12px rgba(33,30,25,0.35);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin: 0 0 0.4em;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: 0.01em; line-height: 1.02; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+h3 { font-size: 1.2rem; }
+
+p { margin: 0 0 1em; color: var(--ink); }
+a { color: inherit; text-decoration: none; }
+
+.mono { font-family: var(--font-mono); }
+
+button, input, select, textarea { font-family: inherit; font-size: 1rem; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color .12s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-primary:hover { background: #c03f0c; border-color: #c03f0c; }
+
+.btn-dark {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+.btn-dark:hover { background: #35302a; }
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--ink);
+}
+.btn-ghost:hover { background: rgba(33,30,25,0.06); }
+
+.btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn-danger:hover { background: var(--danger); color: #fff; }
+
+.btn-sm { padding: 8px 14px; font-size: 0.75rem; }
+.btn-block { width: 100%; }
+
+/* Form elements */
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--ink);
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.error-text { color: var(--danger); font-size: 0.85rem; margin: -8px 0 16px; }
+.help-text { color: var(--muted); font-size: 0.85rem; }
+
+/* Stamp badge - the signature status element */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+  transform: rotate(-3deg);
+  white-space: nowrap;
+}
+.stamp-available { color: var(--pine); }
+.stamp-maintenance { color: var(--warn); }
+.stamp-retired { color: var(--danger); }
+.stamp-confirmed { color: var(--pine); }
+.stamp-cancelled { color: var(--danger); }
+.stamp-completed { color: var(--muted); }
+
+/* Card / ticket surfaces */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.section { padding: 64px 0; }
+.section-tight { padding: 40px 0; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1.5px;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.state-msg {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.state-msg strong { display: block; color: var(--ink); font-family: var(--font-display); text-transform: uppercase; margin-bottom: 6px; }
+
+@media (max-width: 640px) {
+  .field-row { grid-template-columns: 1fr; }
+}

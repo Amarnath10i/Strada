@@ -1,0 +1,106 @@
+.ticket {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-ticket);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ticket:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 0 rgba(33,30,25,0.08), 0 16px 28px -14px rgba(33,30,25,0.45);
+}
+
+.ticket-image {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-alt);
+}
+.ticket-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ticket-stamp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255,254,251,0.92);
+}
+
+.ticket-perf {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px;
+  background: var(--surface);
+  position: relative;
+}
+.ticket-perf::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  border-top: 1.5px dashed var(--line);
+}
+.ticket-perf span {
+  width: 8px; height: 8px;
+  background: var(--bg);
+  border-radius: 50%;
+  margin-top: -4px;
+  flex-shrink: 0;
+}
+.ticket-perf span:first-child { margin-left: -10px; }
+.ticket-perf span:last-child { margin-right: -10px; }
+
+.ticket-stub {
+  padding: 14px 18px 18px;
+}
+.ticket-stub-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ticket-category {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ticket-title {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+}
+.ticket-plate {
+  font-size: 0.72rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 3px 6px;
+  white-space: nowrap;
+}
+.ticket-stub-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.ticket-location {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.ticket-price {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.ticket-price-unit {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 2px;
+}

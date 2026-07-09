@@ -1,0 +1,89 @@
+.admin-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1.5px solid var(--ink);
+  margin-bottom: 32px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+.admin-tabs a {
+  padding: 10px 2px;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px;
+}
+.admin-tabs a.active { color: var(--ink); border-color: var(--accent); }
+
+/* Stat cards */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.stat-card {
+  padding: 20px;
+}
+.stat-card .eyebrow { margin-bottom: 10px; }
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.admin-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.admin-table th, .admin-table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.88rem;
+}
+.admin-table th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: var(--surface-alt);
+}
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table td.actions { display: flex; gap: 8px; }
+.admin-table img.thumb { width: 56px; height: 40px; object-fit: cover; border-radius: 2px; }
+
+/* Modal-ish inline form panel */
+.admin-form-panel {
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .admin-form-grid { grid-template-columns: 1fr 1fr; }
+  .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
+}
