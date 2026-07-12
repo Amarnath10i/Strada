@@ -15,3 +15,26 @@
 @media (max-width: 760px) {
   .filters { grid-template-columns: 1fr 1fr; }
 }
+
+.mode-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  margin: 4px 0 20px;
+}
+.mode-tab {
+  border: 0;
+  background: transparent;
+  padding: 8px 22px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+}
+.mode-tab.is-active {
+  background: #111;
+  color: #fff;
+}

@@ -115,4 +115,5 @@
   font-size: 0.8rem;
   color: #444;
 }
-.ticket-rates small { color: #888; font-weight: 400; margin-left: 2px; }
+.ticket-rates small { color: #888; font-weight: 400; margin-left: 2px; }.ticket-onroad { color: #444; font-weight: 600; }
+.ticket-price-unit { color: #888; font-weight: 400; font-size: 0.7rem; }

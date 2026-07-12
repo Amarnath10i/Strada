@@ -13,6 +13,8 @@ export default function Home() {
   const [bikes, setBikes] = useState([]);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
+  const [mode, setMode] = useState("rent");
+  const buying = mode === "buy";
 
   useEffect(() => {
     api.getVehicles({ status: "available", type: "car" }).then(({ vehicles }) => {
@@ -26,13 +28,21 @@ export default function Home() {
     }).catch(() => {});
   }, []);
 
-  function handleSearch(e) {
-    e.preventDefault();
+  function go(extra = {}) {
     const params = new URLSearchParams();
-    if (q) params.set("q", q);
-    if (type) params.set("type", type);
+    if (buying) params.set("mode", "buy");
+    Object.entries(extra).forEach(([k, val]) => val && params.set(k, val));
     navigate(`/browse?${params.toString()}`);
   }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    go({ q, type });
+  }
+
+  const fmt = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+  const carsBuyMin = cars.length ? Math.min(...cars.map((c) => c.ex_showroom_price || Infinity)) : null;
+  const bikesBuyMin = bikes.length ? Math.min(...bikes.map((b) => b.ex_showroom_price || Infinity)) : null;
 
   // Spread the preview strip across the price range instead of just the
   // cheapest few, so both budget and luxury options show up on the homepage.
@@ -52,17 +62,23 @@ export default function Home() {
     <div>
       <section className="hero">
         <div className="container hero-inner">
-          <div className="eyebrow">Est. — three yards, one fleet</div>
+          <div className="eyebrow">Strada — the road is yours: rent it or own it</div>
           <h1>
-            Pick up<br />
-            the keys<br />
-            <span className="hero-accent">by tonight.</span>
+            {buying ? <>Drive home<br />something<br /><span className="hero-accent">brand new.</span></>
+                    : <>Pick up<br />the keys<br /><span className="hero-accent">by tonight.</span></>}
           </h1>
           <p className="hero-sub">
-            Cars and bikes across town, from budget runabouts to the good
-            stuff — booked by the day. No counters, no queues — reserve
-            online and walk up to a full tank and a clean tag.
+            {buying
+              ? "Cars and bikes from across the country — real on-road prices, colours, features and your nearest showroom. Book a test drive online."
+              : "Cars and bikes across the country, from budget runabouts to the good stuff — by the hour, day or kilometre. Reserve online, no queues."}
           </p>
+
+          <div className="mode-toggle" role="tablist" aria-label="Rent or buy">
+            <button type="button" role="tab" aria-selected={!buying}
+              className={`mode-tab ${!buying ? "is-active" : ""}`} onClick={() => setMode("rent")}>Rent</button>
+            <button type="button" role="tab" aria-selected={buying}
+              className={`mode-tab ${buying ? "is-active" : ""}`} onClick={() => setMode("buy")}>Buy</button>
+          </div>
 
           <form className="counter" onSubmit={handleSearch}>
             <div className="counter-field">
@@ -82,7 +98,7 @@ export default function Home() {
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary counter-submit">Find a ride</button>
+            <button type="submit" className="btn btn-primary counter-submit">{buying ? "Find a vehicle" : "Find a ride"}</button>
           </form>
         </div>
       </section>
@@ -90,26 +106,30 @@ export default function Home() {
       <section className="section-tight">
         <div className="container">
           <div className="category-split">
-            <button className="category-card" onClick={() => navigate("/browse?type=car")}>
+            <button className="category-card" onClick={() => go({ type: "car" })}>
               <img src={CAR_HERO_IMG} alt="Cars" />
               <div className="category-card-body">
                 <span className="eyebrow">Four wheels</span>
                 <h2>Cars</h2>
                 <p>Economy hatchbacks up through supercars and a chauffeur-grade Rolls-Royce.</p>
                 <span className="category-card-cta">
-                  Browse cars{carsMin != null ? ` from ₹${Number(carsMin).toLocaleString("en-IN")}/day` : ""} &rarr;
+                  {buying
+                    ? `Buy cars${carsBuyMin ? ` from ${fmt(carsBuyMin)}` : ""}`
+                    : `Rent cars${carsMin != null ? ` from ${fmt(carsMin)}/day` : ""}`} &rarr;
                 </span>
               </div>
             </button>
 
-            <button className="category-card" onClick={() => navigate("/browse?type=bike")}>
+            <button className="category-card" onClick={() => go({ type: "bike" })}>
               <img src={BIKE_HERO_IMG} alt="Bikes" />
               <div className="category-card-body">
                 <span className="eyebrow">Two wheels</span>
                 <h2>Bikes</h2>
                 <p>Scooters and eBikes up through Ducati superbikes and CVO tourers.</p>
                 <span className="category-card-cta">
-                  Browse bikes{bikesMin != null ? ` from ₹${Number(bikesMin).toLocaleString("en-IN")}/day` : ""} &rarr;
+                  {buying
+                    ? `Buy bikes${bikesBuyMin ? ` from ${fmt(bikesBuyMin)}` : ""}`
+                    : `Rent bikes${bikesMin != null ? ` from ${fmt(bikesMin)}/day` : ""}`} &rarr;
                 </span>
               </div>
             </button>
@@ -124,11 +144,11 @@ export default function Home() {
               <div className="eyebrow">Low-cost to luxury</div>
               <h2>Cars on the lot</h2>
             </div>
-            <button className="btn btn-dark" onClick={() => navigate("/browse?type=car")}>View all cars</button>
+            <button className="btn btn-dark" onClick={() => go({ type: "car" })}>View all cars</button>
           </div>
 
           <div className="ticket-grid">
-            {spread(cars, 6).map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+            {spread(cars, 6).map((v) => <VehicleCard key={v.id} vehicle={v} mode={mode} />)}
           </div>
         </div>
       </section>
@@ -140,11 +160,11 @@ export default function Home() {
               <div className="eyebrow">Low-cost to luxury</div>
               <h2>Bikes on the lot</h2>
             </div>
-            <button className="btn btn-dark" onClick={() => navigate("/browse?type=bike")}>View all bikes</button>
+            <button className="btn btn-dark" onClick={() => go({ type: "bike" })}>View all bikes</button>
           </div>
 
           <div className="ticket-grid">
-            {spread(bikes, 6).map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+            {spread(bikes, 6).map((v) => <VehicleCard key={v.id} vehicle={v} mode={mode} />)}
           </div>
         </div>
       </section>

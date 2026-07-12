@@ -11,6 +11,7 @@ export default function Browse() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const mode = searchParams.get("mode") === "buy" ? "buy" : "rent";
   const type = searchParams.get("type") || "";
   const category = searchParams.get("category") || "";
   const location = searchParams.get("location") || "";
@@ -23,11 +24,11 @@ export default function Browse() {
   useEffect(() => {
     setLoading(true);
     setError("");
-    api.getVehicles({ type, category, location, q })
+    api.getVehicles({ type, category, location, q, mode })
       .then(({ vehicles }) => setVehicles(vehicles))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [type, category, location, q]);
+  }, [type, category, location, q, mode]);
 
   function updateFilter(key, value) {
     const next = new URLSearchParams(searchParams);
@@ -37,8 +38,23 @@ export default function Browse() {
 
   return (
     <div className="container section-tight">
-      <div className="eyebrow">{vehicles.length} in the yard</div>
-      <h1 className="browse-title">The Fleet</h1>
+      <div className="eyebrow">{vehicles.length} {mode === "buy" ? "on sale" : "in the yard"}</div>
+      <h1 className="browse-title">{mode === "buy" ? "Buy your ride" : "The Fleet"}</h1>
+
+      <div className="mode-toggle" role="tablist" aria-label="Rent or buy">
+        <button
+          role="tab"
+          aria-selected={mode === "rent"}
+          className={`mode-tab ${mode === "rent" ? "is-active" : ""}`}
+          onClick={() => updateFilter("mode", "")}
+        >Rent</button>
+        <button
+          role="tab"
+          aria-selected={mode === "buy"}
+          className={`mode-tab ${mode === "buy" ? "is-active" : ""}`}
+          onClick={() => updateFilter("mode", "buy")}
+        >Buy</button>
+      </div>
 
       <div className="filters">
         <div className="field">
@@ -85,7 +101,7 @@ export default function Browse() {
 
       {!loading && !error && vehicles.length > 0 && (
         <div className="ticket-grid">
-          {vehicles.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+          {vehicles.map((v) => <VehicleCard key={v.id} vehicle={v} mode={mode} />)}
         </div>
       )}
     </div>

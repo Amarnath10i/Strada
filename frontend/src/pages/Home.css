@@ -139,3 +139,28 @@
   .counter { flex-direction: column; align-items: stretch; }
   .counter-submit { width: 100%; }
 }
+
+.mode-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+  margin: 0 0 22px;
+}
+.mode-tab {
+  border: 0;
+  background: transparent;
+  padding: 9px 26px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.75;
+}
+.mode-tab.is-active {
+  background: #fff;
+  color: #111;
+  opacity: 1;
+}

@@ -40,4 +40,12 @@ export const api = {
   allBookings: (token, status) => request(`/bookings${status ? `?status=${status}` : ""}`, { token }),
 
   adminStats: (token) => request("/admin/stats", { token }),
+
+  getShowrooms: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== "" && v != null)
+    ).toString();
+    return request(`/showrooms${qs ? `?${qs}` : ""}`);
+  },
+  getShowroomCities: () => request("/showrooms/cities"),
 };
