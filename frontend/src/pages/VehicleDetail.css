@@ -72,3 +72,42 @@
 .rate-cell-primary .rate-label { color: #ccc; }
 .rate-value { font-size: 1.05rem; font-weight: 700; }
 .rate-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #666; margin-top: 2px; }
+/* --- gallery thumbnails --- */
+.detail-thumbs { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.detail-thumb {
+  width: 72px; height: 54px; padding: 0; border: 2px solid transparent;
+  border-radius: 8px; overflow: hidden; cursor: pointer; background: #eee;
+}
+.detail-thumb.is-active { border-color: #111; }
+.detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.detail-info .mode-toggle {
+  display: inline-flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.06);
+  border-radius: 999px; margin: 4px 0 18px;
+}
+.detail-info .mode-tab {
+  border: 0; background: transparent; padding: 8px 24px; border-radius: 999px;
+  font: inherit; font-weight: 600; cursor: pointer; color: #555;
+}
+.detail-info .mode-tab.is-active { background: #111; color: #fff; }
+
+.detail-block { margin: 18px 0; }
+.detail-block-title { font-size: 0.95rem; margin: 0 0 10px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { display: inline-flex; align-items: center; gap: 7px; font-size: 0.85rem; }
+.swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); display: inline-block; }
+.feature-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px;
+  margin: 0; padding-left: 18px; font-size: 0.9rem; color: #333;
+}
+
+.buy-price { display: flex; gap: 26px; margin-bottom: 16px; }
+.buy-price-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #888; }
+.buy-price-val { font-size: 1.35rem; font-weight: 700; }
+.showroom-card {
+  display: flex; flex-direction: column; gap: 3px; margin: 12px 0;
+  padding: 12px 14px; background: rgba(0,0,0,0.04); border-radius: 10px; font-size: 0.9rem;
+}
+.booking-rate-extra { display: block; font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+@media (max-width: 560px) { .feature-list { grid-template-columns: 1fr; } }
