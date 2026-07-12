@@ -1,5 +1,13 @@
 import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import db from "./index.js";
+
+// Official model posters scraped from CarDekho / BikeDekho, keyed by plate.
+// See db/build-images.mjs for how this file is generated.
+const __seedDir = path.dirname(fileURLToPath(import.meta.url));
+const POSTERS = JSON.parse(fs.readFileSync(path.join(__seedDir, "images.json"), "utf8"));
 
 /*
   Strada / Depot Rentals seed
@@ -157,6 +165,11 @@ if (vehicleCount === 0) {
   if (panigale) panigale.status = "maintenance";
   const camaro = vehicles.find((x) => x.model === "Camaro SS");
   if (camaro) camaro.status = "maintenance";
+
+  // Override the placeholder stock photos with the real CarDekho poster per plate.
+  for (const row of vehicles) {
+    if (POSTERS[row.plate]) row.image_url = POSTERS[row.plate];
+  }
 
   const insertMany = db.transaction((rows) => {
     for (const row of rows) insertVehicle.run(row);
