@@ -35,7 +35,25 @@ CREATE TABLE IF NOT EXISTS vehicles (
   image_url TEXT,
   description TEXT,
   status TEXT NOT NULL DEFAULT 'available',
+  -- buy-marketplace fields
+  listing_mode TEXT NOT NULL DEFAULT 'both',   -- 'rent' | 'buy' | 'both'
+  ex_showroom_price REAL,                        -- purchase price (INR)
+  on_road_price REAL,                            -- ex-showroom + RTO + insurance (INR)
+  fuel TEXT,                                      -- Petrol | Diesel | Electric | Hybrid
+  colors TEXT,                                    -- JSON: [{name,hex}]
+  features TEXT,                                  -- JSON: [string]
+  gallery TEXT,                                   -- JSON: [image_url]
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS showrooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  brand TEXT NOT NULL,
+  type TEXT NOT NULL,              -- 'car' | 'bike'
+  city TEXT NOT NULL,
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  phone TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -58,6 +76,18 @@ if (!cols.includes("price_per_hour")) {
 }
 if (!cols.includes("price_per_km")) {
   db.exec("ALTER TABLE vehicles ADD COLUMN price_per_km REAL NOT NULL DEFAULT 0");
+}
+// Buy-marketplace columns for existing DBs.
+for (const [name, ddl] of [
+  ["listing_mode", "TEXT NOT NULL DEFAULT 'both'"],
+  ["ex_showroom_price", "REAL"],
+  ["on_road_price", "REAL"],
+  ["fuel", "TEXT"],
+  ["colors", "TEXT"],
+  ["features", "TEXT"],
+  ["gallery", "TEXT"],
+]) {
+  if (!cols.includes(name)) db.exec(`ALTER TABLE vehicles ADD COLUMN ${name} ${ddl}`);
 }
 
 export default db;

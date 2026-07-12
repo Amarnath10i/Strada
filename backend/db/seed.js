@@ -8,6 +8,8 @@ import db from "./index.js";
 // See db/build-images.mjs for how this file is generated.
 const __seedDir = path.dirname(fileURLToPath(import.meta.url));
 const POSTERS = JSON.parse(fs.readFileSync(path.join(__seedDir, "images.json"), "utf8"));
+// Poster + exterior gallery scraped from CarDekho/BikeDekho. See db/build-media.mjs.
+const MEDIA = JSON.parse(fs.readFileSync(path.join(__seedDir, "media.json"), "utf8"));
 
 /*
   Strada / Depot Rentals seed
@@ -40,10 +42,12 @@ if (vehicleCount === 0) {
   const insertVehicle = db.prepare(`
     INSERT INTO vehicles
       (type, brand, model, year, plate, category, transmission, seats,
-       price_per_hour, price_per_day, price_per_km, location, image_url, description, status)
+       price_per_hour, price_per_day, price_per_km, location, image_url, description, status,
+       listing_mode, ex_showroom_price, on_road_price, fuel, colors, features, gallery)
     VALUES
       (@type, @brand, @model, @year, @plate, @category, @transmission, @seats,
-       @price_per_hour, @price_per_day, @price_per_km, @location, @image_url, @description, @status)
+       @price_per_hour, @price_per_day, @price_per_km, @location, @image_url, @description, @status,
+       @listing_mode, @ex_showroom_price, @on_road_price, @fuel, @colors, @features, @gallery)
   `);
 
   const LOC = {
@@ -166,9 +170,93 @@ if (vehicleCount === 0) {
   const camaro = vehicles.find((x) => x.model === "Camaro SS");
   if (camaro) camaro.status = "maintenance";
 
-  // Override the placeholder stock photos with the real CarDekho poster per plate.
+  // ---------------------------------------------------------------------
+  // BUY marketplace data (Strada = road: rent OR buy).
+  // Ex-showroom prices (INR) are realistic Indian-market values per model.
+  // ---------------------------------------------------------------------
+  const EX = {
+    "MH01-AA-1001":420000,"KA02-BB-1002":480000,"DL03-CC-1003":650000,"TS04-DD-1004":620000,
+    "MH05-EE-1005":580000,"KA06-FF-1006":710000,"DL07-GG-1007":760000,"TN08-HH-1008":680000,
+    "MH09-II-1009":760000,"KA10-JJ-1010":1300000,"DL11-KK-1011":1200000,"HR12-LL-1012":1250000,
+    "MH13-MM-1013":1320000,"KA14-NN-1014":920000,"MH15-OO-1015":900000,"TS16-PP-1016":860000,
+    "KA17-QQ-1017":880000,"DL18-RR-1018":940000,"MH19-SS-1019":1250000,"KA20-TT-1020":1280000,
+    "HR21-UU-1021":1330000,"MH22-VV-1022":1260000,"PB23-WW-1023":1550000,"KA24-XX-1024":2050000,
+    "MH25-YY-1025":2150000,"HR26-ZZ-1026":4250000,"TS27-AA-1027":1750000,"MH28-BB-1028":2250000,
+    "KA29-CC-1029":6700000,"DL30-DD-1030":4800000,"MH31-EE-1031":6200000,"KA32-FF-1032":4800000,
+    "DL33-GG-1033":6100000,"MH34-HH-1034":8200000,"KA35-II-1035":7600000,"MH36-JJ-1036":6900000,
+    "DL37-KK-1037":10100000,"MH38-LL-1038":14200000,"KA39-MM-1039":10200000,"MH40-NN-1040":6000000,
+    "KA41-OO-1041":1500000,"DL42-PP-1042":2000000,"GA43-QQ-1043":5000000,"MH44-RR-1044":9000000,
+    "DL45-SS-1045":7200000,"MH46-TT-1046":20500000,"KA47-UU-1047":25000000,"MH48-VV-1048":35000000,
+    "DL49-WW-1049":40000000,"MH50-XX-1050":70000000,"DL51-YY-1051":50000000,
+    "MH01-B-2001":85000,"KA02-B-2002":92000,"DL03-B-2003":90000,"KA04-B-2004":150000,
+    "KA05-B-2005":150000,"MH06-B-2006":140000,"DL07-B-2007":80000,"HR08-B-2008":120000,
+    "KA09-B-2009":95000,"TN10-B-2010":130000,"TN11-B-2011":150000,"MH12-B-2012":200000,
+    "KA13-B-2013":170000,"DL14-B-2014":220000,"UK15-B-2015":300000,"KA16-B-2016":320000,
+    "MH17-B-2017":330000,"DL18-B-2018":250000,"TN19-B-2019":170000,"KA20-B-2020":190000,
+    "MH21-B-2021":350000,"KA22-B-2022":750000,"DL23-B-2023":250000,"MH24-B-2024":280000,
+    "KA25-B-2025":1100000,"MH26-B-2026":950000,"DL27-B-2027":350000,"KA28-B-2028":2200000,
+    "MH29-B-2029":1200000,"MH30-B-2030":2700000,"DL31-B-2031":1600000,"KA32-B-2032":4000000,
+    "MH33-B-2033":5500000,
+  };
+
+  const PALETTE = {
+    White:"#f4f4f4", "Pearl White":"#eef0ee", Silver:"#c8cbd0", Grey:"#7d8288", "Steel Grey":"#5b6169",
+    Black:"#1b1b1d", Red:"#c0392b", Blue:"#2c5aa0", "Sky Blue":"#4a90d9", Brown:"#6b4b3a",
+    Green:"#3a6b4b", Orange:"#e07b2a", Yellow:"#e8c33a", Bronze:"#8a6d3b",
+  };
+  const colorSet = (names) => JSON.stringify(names.map((n) => ({ name: n, hex: PALETTE[n] || "#888" })));
+  const colorsFor = (t) => t === "bike"
+    ? colorSet(["Black", "Red", "Blue", "Silver"])
+    : colorSet(["White", "Silver", "Grey", "Black", "Red", "Blue"]);
+
+  const featuresFor = (cat, type, fuel) => {
+    const c = cat.toLowerCase();
+    let f;
+    if (type === "bike") {
+      if (c.includes("scooter")) f = ["LED headlamp", "Digital console", "USB charging", "Under-seat storage", "Combi-brake / ABS"];
+      else if (c.includes("commuter")) f = ["Fuel injection", "LED DRL", "Digital-analog console", "Tubeless tyres", "Single-channel ABS"];
+      else if (c.includes("cruiser") || c.includes("roadster") || c.includes("classic")) f = ["Torquey engine", "LED lighting", "Dual-channel ABS", "Tripper navigation", "Comfort touring seat"];
+      else if (c.includes("adventure") || c.includes("tourer") || c.includes("touring")) f = ["Ride modes", "Long-travel suspension", "Windscreen", "Tubeless spoke wheels", "TFT display"];
+      else f = ["USD front forks", "Dual-channel ABS", "Slipper clutch", "TFT display", "Ride modes", "Quickshifter"];
+    } else if (fuel === "Electric") {
+      f = ["Fast charging", "Regenerative braking", "Connected car app", "Single-pedal drive", "6 airbags", "Digital cockpit"];
+    } else if (c.includes("hatch")) {
+      f = ["Touchscreen infotainment", "Dual airbags", "ABS with EBD", "Rear parking camera", "Power windows", "Apple CarPlay & Android Auto"];
+    } else if (c.includes("sedan")) {
+      f = ["Sunroof", "Automatic climate control", "Cruise control", "6 airbags", "Ventilated seats", "Connected car tech"];
+    } else if (c.includes("suv") || c.includes("mpv")) {
+      f = ["Panoramic sunroof", "360° camera", "Hill-hold assist", "6 airbags", "Wireless CarPlay/Android Auto", "Ambient lighting"];
+    } else if (c.includes("ultra") ) {
+      f = ["Massage rear seats", "Rear entertainment", "Air suspension", "Nappa leather", "Starlight headliner", "Executive lounge seating"];
+    } else {
+      f = ["Launch control", "Sport exhaust", "Adaptive suspension", "Track mode", "Carbon-fibre trim", "Performance brakes"];
+    }
+    return JSON.stringify(f);
+  };
+
+  const fuelFor = (row) => {
+    const c = row.category.toLowerCase();
+    if (c.includes("electric") || row.model.includes("EV") || /S1 Pro|450X/.test(row.model)) return "Electric";
+    if (/Hybrid|Hycross|Camry/.test(row.model)) return "Hybrid";
+    return "Petrol";
+  };
+
+  // Enrich every vehicle: real poster + gallery, buy pricing, colours, features.
   for (const row of vehicles) {
-    if (POSTERS[row.plate]) row.image_url = POSTERS[row.plate];
+    const media = MEDIA[row.plate];
+    if (media?.poster) row.image_url = media.poster;
+    else if (POSTERS[row.plate]) row.image_url = POSTERS[row.plate];
+    const gallery = media?.gallery?.length ? media.gallery : (row.image_url ? [row.image_url] : []);
+    row.gallery = JSON.stringify(gallery);
+
+    const ex = EX[row.plate] || null;
+    row.ex_showroom_price = ex;
+    // On-road ≈ ex-showroom + RTO + insurance (~11% cars, ~13% two-wheelers).
+    row.on_road_price = ex ? Math.round((ex * (row.type === "bike" ? 1.13 : 1.11)) / 1000) * 1000 : null;
+    row.listing_mode = "both";
+    row.fuel = fuelFor(row);
+    row.colors = colorsFor(row.type);
+    row.features = featuresFor(row.category, row.type, row.fuel);
   }
 
   const insertMany = db.transaction((rows) => {
@@ -176,6 +264,37 @@ if (vehicleCount === 0) {
   });
   insertMany(vehicles);
   console.log(`Seeded ${vehicles.length} vehicles`);
+
+  // -------------------------------------------------------------------
+  // Showroom network across major Indian cities (for the buy flow's
+  // "nearest showroom"). Generated per brand present in the fleet.
+  // -------------------------------------------------------------------
+  const CITIES = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Jaipur", "Goa"];
+  const AREA = {
+    Mumbai:"Andheri East", Delhi:"Moti Nagar", Bengaluru:"Whitefield", Hyderabad:"Banjara Hills",
+    Chennai:"Guindy", Pune:"Baner", Kolkata:"Salt Lake", Ahmedabad:"S.G. Highway",
+    Jaipur:"Tonk Road", Goa:"Porvorim",
+  };
+  const insertShowroom = db.prepare(
+    "INSERT INTO showrooms (brand, type, city, name, address, phone) VALUES (@brand, @type, @city, @name, @address, @phone)"
+  );
+  const brandTypes = new Map();
+  for (const row of vehicles) brandTypes.set(row.brand, row.type);
+  let phoneSeed = 9800000000;
+  const showrooms = [];
+  for (const [brand, type] of brandTypes) {
+    for (const city of CITIES) {
+      showrooms.push({
+        brand, type, city,
+        name: `${brand} ${type === "bike" ? "Motorrad" : "Motors"} — ${city}`,
+        address: `${AREA[city]}, ${city}`,
+        phone: `+91 ${String(++phoneSeed).slice(0, 5)} ${String(phoneSeed).slice(5)}`,
+      });
+    }
+  }
+  const insertShowrooms = db.transaction((rows) => { for (const s of rows) insertShowroom.run(s); });
+  insertShowrooms(showrooms);
+  console.log(`Seeded ${showrooms.length} showrooms across ${CITIES.length} cities`);
 }
 
 console.log("Seed complete.");

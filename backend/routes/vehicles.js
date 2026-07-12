@@ -6,7 +6,7 @@ const router = Router();
 
 // GET /api/vehicles - public list with filters
 router.get("/", (req, res) => {
-  const { type, category, location, q, maxPrice, status } = req.query;
+  const { type, category, location, q, maxPrice, status, mode } = req.query;
 
   let sql = "SELECT * FROM vehicles WHERE 1=1";
   const params = [];
@@ -14,6 +14,8 @@ router.get("/", (req, res) => {
   if (type) { sql += " AND type = ?"; params.push(type); }
   if (category) { sql += " AND category = ?"; params.push(category); }
   if (location) { sql += " AND location = ?"; params.push(location); }
+  // mode = 'rent' | 'buy' — a vehicle is offered for it if listing_mode is that or 'both'
+  if (mode === "rent" || mode === "buy") { sql += " AND listing_mode IN (?, 'both')"; params.push(mode); }
   if (status) { sql += " AND status = ?"; params.push(status); }
   else { sql += " AND status != 'retired'"; }
   if (maxPrice) { sql += " AND price_per_day <= ?"; params.push(Number(maxPrice)); }
