@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import db from "./index.js";
+import { EXTRA_VEHICLES } from "./extra-vehicles.js";
 
 // Official model posters scraped from CarDekho / BikeDekho, keyed by plate.
 // See db/build-images.mjs for how this file is generated.
@@ -241,6 +242,12 @@ if (vehicleCount === 0) {
     return "Petrol";
   };
 
+  // Fold in the nationwide expansion fleet (extra CarDekho/BikeDekho models).
+  for (const e of EXTRA_VEHICLES) {
+    const { url, ...row } = e;   // drop the scrape-only url field
+    vehicles.push(row);
+  }
+
   // Enrich every vehicle: real poster + gallery, buy pricing, colours, features.
   for (const row of vehicles) {
     const media = MEDIA[row.plate];
@@ -249,12 +256,13 @@ if (vehicleCount === 0) {
     const gallery = media?.gallery?.length ? media.gallery : (row.image_url ? [row.image_url] : []);
     row.gallery = JSON.stringify(gallery);
 
-    const ex = EX[row.plate] || null;
+    // Extras carry their own ex-showroom price; base fleet uses the EX map.
+    const ex = row.ex_showroom_price ?? EX[row.plate] ?? null;
     row.ex_showroom_price = ex;
     // On-road ≈ ex-showroom + RTO + insurance (~11% cars, ~13% two-wheelers).
     row.on_road_price = ex ? Math.round((ex * (row.type === "bike" ? 1.13 : 1.11)) / 1000) * 1000 : null;
     row.listing_mode = "both";
-    row.fuel = fuelFor(row);
+    row.fuel = row.fuel || fuelFor(row);
     row.colors = colorsFor(row.type);
     row.features = featuresFor(row.category, row.type, row.fuel);
   }
