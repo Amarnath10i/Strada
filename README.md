@@ -1,74 +1,85 @@
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 48px;
-  align-items: start;
-}
+# Strada
 
-.detail-media {
-  position: relative;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--line);
-}
-.detail-media img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
-.detail-stamp {
-  position: absolute;
-  top: 16px; right: 16px;
-  background: rgba(255,254,251,0.92);
-}
+A full-stack car and bike marketplace for Indian cities: **rent** a vehicle by the hour, day or kilometre, or **buy** one with ex-showroom and on-road prices and the nearest brand showroom. Admins manage the fleet and every reservation.
 
-.detail-title { margin-bottom: 10px; }
-.detail-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
-.detail-meta span {
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  padding: 4px 8px;
-  text-transform: capitalize;
-}
-.detail-desc { color: var(--muted); max-width: 52ch; }
+## Stack
 
-.booking-panel { padding: 22px; margin-top: 24px; }
-.booking-price {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 18px;
-}
-.booking-price .mono { font-size: 1.6rem; font-weight: 600; color: var(--accent); }
-.booking-price-unit { color: var(--muted); font-size: 0.85rem; }
-.booking-calc { margin: -4px 0 16px; }
-.booking-success strong {
-  display: block;
-  font-family: var(--font-display);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.booking-success p { color: var(--muted); margin-bottom: 16px; }
+- **Backend:** Node.js, Express, SQLite (`better-sqlite3`), JWT auth, bcrypt
+- **Frontend:** React (Vite), React Router, plain CSS with a small custom design system
 
-@media (max-width: 860px) {
-  .detail-grid { grid-template-columns: 1fr; }
-}
+## Features
 
-.rate-card {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #f7f5ef;
-  border: 1px dashed rgba(0,0,0,0.15);
-  border-radius: 6px;
-}
-.rate-cell { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; }
-.rate-cell-primary { background: #111; color: #fff; border-radius: 4px; }
-.rate-cell-primary .rate-label { color: #ccc; }
-.rate-value { font-size: 1.05rem; font-weight: 700; }
-.rate-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #666; margin-top: 2px; }
+**Customers**
+- Browse 186 seeded cars and bikes across 17 cities in *Rent* or *Buy* mode, with filters for type, class, city and free-text search
+- Rent: per-hour, per-day and per-km INR pricing; booking a date range is rejected server-side if it overlaps an existing booking
+- Buy: ex-showroom and on-road prices, fuel type, colours, features, an image gallery, and brand showrooms in the chosen city
+- View and cancel their own bookings
+
+**Admins**
+- Dashboard with fleet, booking, customer and revenue stats
+- Add, edit and retire vehicles (available / in shop / retired)
+- View and cancel any booking
+
+## API
+
+| Method | Route | Access |
+|---|---|---|
+| `POST` | `/api/auth/register`, `/api/auth/login` | public |
+| `GET` | `/api/auth/me` | signed in |
+| `GET` | `/api/vehicles`, `/api/vehicles/meta`, `/api/vehicles/:id` | public |
+| `POST` `PUT` `DELETE` | `/api/vehicles[/:id]` | admin |
+| `POST` | `/api/bookings` | signed in |
+| `GET` | `/api/bookings/mine`; `PATCH /api/bookings/:id/cancel` | signed in |
+| `GET` | `/api/bookings` | admin |
+| `GET` | `/api/showrooms`, `/api/showrooms/cities` | public |
+| `GET` | `/api/admin/stats` | admin |
+
+## Data model
+
+SQLite tables `users`, `vehicles` (rent and buy fields, `listing_mode` = rent / buy / both), `showrooms` and `bookings`, created in [`backend/db/index.js`](backend/db/index.js) with lightweight migrations for columns added later. Queries use `better-sqlite3`'s synchronous API, so moving to Postgres mainly means swapping the driver.
+
+## Project structure
+
+```
+backend/
+  server.js         Express app
+  db/               schema, migrations, seed data, media builders
+  routes/           auth, vehicles, bookings, showrooms, admin
+  middleware/       JWT guard and admin check
+frontend/src/
+  pages/            Home, Browse, VehicleDetail, Login, Register, MyBookings, admin/*
+  components/       Navbar, Footer, VehicleCard, route guards
+  context/          AuthContext (JWT session)
+  api.js            fetch wrapper for the backend
+```
+
+## Run locally
+
+Node.js 18+.
+
+```bash
+# API on http://localhost:4000
+cd backend
+npm install
+cp .env.example .env      # set JWT_SECRET
+npm run seed              # creates rental.db with vehicles, showrooms and demo users (safe to re-run)
+npm start
+
+# Web app on http://localhost:5173 (second terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend reads the API URL from `VITE_API_URL` (default `http://localhost:4000/api`).
+
+Demo accounts created by the seed script:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@strada.com | admin123 |
+| Customer | jamie@example.com | customer123 |
+
+## Before deploying for real
+
+This is a demo-grade build: set a strong `JWT_SECRET`, serve over HTTPS, add rate limiting and stricter input validation, and move vehicle images off hot-linked URLs to your own storage.
